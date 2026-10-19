@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#0b1a3a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>סוניק פלאש האולטימטיבי</title>
+  <link rel="icon" href="icon.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main id="stage">
+    <div id="game"></div>
+  </main>
+
+  <!-- on-screen controls (touch devices) -->
+  <div id="pad" hidden>
+    <div class="cluster left">
+      <button class="key" data-key="left" aria-label="שמאלה">◀</button>
+      <button class="key" data-key="down" aria-label="למטה">▼</button>
+      <button class="key" data-key="right" aria-label="ימינה">▶</button>
+    </div>
+    <div class="cluster right">
+      <button class="key small" data-key="enter" aria-label="השהיה">II</button>
+      <button class="key big" data-key="space" aria-label="קפיצה">קפיצה</button>
+    </div>
+  </div>
+
+  <div id="bar">
+    <button id="btn-full" title="מסך מלא">⛶</button>
+    <button id="btn-pad" title="כפתורי מגע">🎮</button>
+  </div>
+
+  <div id="start" class="overlay">
+    <div class="card">
+      <img src="icon.png" alt="" class="logo">
+      <h1>סוניק פלאש האולטימטיבי</h1>
+      <p class="sub">בעברית מלאה · גרפיקה מוגדלת לרזולוציות 4K / 8K ומעלה</p>
+      <button id="play">▶ שחקו</button>
+      <div class="help">
+        <p><b>מקלדת:</b> חיצים לתזוזה · רווח לקפיצה · למטה+רווח ושחרור = ספין-דאש · אנטר להשהיה</p>
+        <p><b>טלפון:</b> כפתורי מגע על המסך · נגיעה במשחק = לחיצת עכבר (תפריטים)</p>
+      </div>
+      <p class="loading" id="loading">טוען…</p>
+    </div>
+  </div>
+
+  <div id="rotate" class="overlay" hidden>
+    <div class="card"><p class="big-icon">⟳</p><p>סובבו את הטלפון לרוחב</p><button id="rotate-ok">המשך בכל זאת</button></div>
+  </div>
+
+  <script src="ruffle/ruffle.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+# original game, Flash Player and every build product: never in git (published only as Release assets)
+orig/
+work/
+output/
+*.swf
+*.exe
+.playwright-mcp/
+__pycache__/
