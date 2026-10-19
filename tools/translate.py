@@ -118,7 +118,14 @@ EDITS = {
 # ---------------------------------------------------------------- script strings
 NAMES = {'sonic': 'סוניק', 'tails': 'טיילס', 'knuckles': 'נאקלס', 'cream': 'קרים', 'amy': 'איימי',
          'shadow': 'שאדו'}
-FEMALE = {'cream', 'amy'}
+FEMALE = {'cream', 'amy', 'peach'}
+# new characters (tools/make_chars.py): id, Hebrew name, base character (abilities + animation labels)
+_roster = os.path.join(W, 'chars', 'roster.json')
+ROSTER = [dict(id=k, he=n, base=k) for k, n in NAMES.items()]
+if os.path.exists(_roster):
+    import json
+    ROSTER += json.load(open(_roster, encoding='utf-8'))
+    NAMES.update({c['id']: c['he'] for c in ROSTER})
 GOT = {k: f'{n} {"עברה" if k in FEMALE else "עבר"} את מערכה' for k, n in NAMES.items()}
 CLEAR = {k: f'{n} {"סיימה" if k in FEMALE else "סיים"} את המשחק!' for k, n in NAMES.items()}
 
@@ -150,10 +157,14 @@ def lit(old, new):
 CURTAIN = '''Stage.scaleMode = "showAll";
 Stage.align = "";
 var cur = _root.createEmptyMovieClip("he_curtain", 1048000);
-cur.beginFill(0, 100);
-cur.moveTo(-9000, -9000); cur.lineTo(9350, -9000); cur.lineTo(9350, 9250); cur.lineTo(-9000, 9250); cur.lineTo(-9000, -9000);
-cur.moveTo(0, 0); cur.lineTo(0, 250); cur.lineTo(350, 250); cur.lineTo(350, 0); cur.lineTo(0, 0);
-cur.endFill();
+var box = [[-9000, -9000, 9350, 0], [-9000, 250, 9350, 9250], [-9000, 0, 0, 250], [350, 0, 9350, 250]];
+for(var i = 0; i < 4; i++)
+{
+   var b = box[i];
+   cur.beginFill(0, 100);
+   cur.moveTo(b[0], b[1]); cur.lineTo(b[2], b[1]); cur.lineTo(b[2], b[3]); cur.lineTo(b[0], b[3]); cur.lineTo(b[0], b[1]);
+   cur.endFill();
+}
 stop();'''
 
 SCRIPTS = {
@@ -172,22 +183,55 @@ SCRIPTS = {
          '_root.zones = 2;\n_root.hename = new Array();\n' + obj('_root.hename', NAMES)
          + '_root.hegot = new Array();\n' + obj('_root.hegot', GOT)
          + '_root.heclear = new Array();\n' + obj('_root.heclear', CLEAR)),
+        # roster: menu order, names, base character; every character starts with its own save slot
+        ('_root.save.shadow = "01";',
+         '_root.save.shadow = "01";\n_root.roster = new Array();\n_root.rname = new Array();\n_root.cbase = new Array();\n'
+         + ''.join(f'_root.roster.push("{c["id"]}");\n_root.rname.{c["id"]} = {q(c["he"])};\n'
+                   f'_root.cbase.{c["id"]} = "{c["base"]}";\n' for c in ROSTER)
+         + ''.join(f'_root.save.{c["id"]} = "01";\n' for c in ROSTER[6:])),
     ],
+    # the player clip: art of the chosen character, abilities of its base character
+    'frame_327/PlaceObject2_2556_25/CLIPACTIONRECORD onClipEvent(load).as': [
+        ('chara = _root.chara;\n   this.attachMovie(chara,"sonic",1);',
+         'chara = _root.cbase[_root.chara];\n   this.attachMovie(_root.chara,"sonic",1);')],
+    'frame_291/PlaceObject2_2500_41/CLIPACTIONRECORD onClipEvent(enterFrame).as': [
+        ('_root.balken.chara = this[_root.chara];',
+         '_root.balken.chara = this[_root.chara] == undefined ? _root.rname[_root.chara] : this[_root.chara];')],
     MENU: [
         lit('start game', 'התחל משחק'), lit('options', 'אפשרויות'), lit('password', 'סיסמה'),
         lit('cheats', 'צ\'יטים'), lit('main', 'תפריט ראשי'),
         lit('FX Volume', 'עוצמת אפקטים'), lit('Music Volume', 'עוצמת מוזיקה'), lit('back', 'חזרה'),
         lit('main game', 'משחק רגיל'), lit('time trial', 'נגד השעון'), lit('play', 'שחק'),
         lit('view records', 'צפייה בשיאים'), lit('character select', 'בחירת דמות'),
-        lit('Sonic', 'סוניק'), lit('Tails', 'טיילס'), lit('Knuckles', 'נאקלס'), lit('Cream', 'קרים'),
-        lit('Amy', 'איימי'), lit('Shadow', 'שאדו'), lit('Start Game', 'התחל משחק'),
+        # character select = "previous / <name> / next" (the roster is longer than the menu)
+        ('chara[1] = "Sonic";\n   chara[2] = "Tails";\n   chara[3] = "Knuckles";\n   chara[4] = "Cream";\n'
+         '   chara[5] = "Amy";\n   chara[6] = "Shadow";',
+         f'chara[1] = {q("דמות קודמת")};\n   chara[2] = " ";\n   chara[3] = {q("דמות הבאה")};\n'
+         '   chara[4] = "";\n   chara[5] = "";\n   chara[6] = "";'),
+        lit('Start Game', 'התחל משחק'),
         lit('enter password', 'הזנת סיסמה'), lit('get password', 'קבלת סיסמה'),
         lit('get password:', 'קבלת סיסמה:'), lit('your password:', 'הסיסמה שלך:'), lit('empty', 'ריק'),
         lit('enter password:', 'הזנת סיסמה:'), lit('enter passwd:', 'הזינו סיסמה:'),
         lit('type here', 'הקלידו כאן'), lit('enter', 'אישור'),
     ],
-    MENU2: [lit('BACK', 'חזרה'), lit('no cheats', 'אין צ\'יטים')],
+    MENU2: [lit('BACK', 'חזרה'), lit('no cheats', 'אין צ\'יטים'),
+            ('               if(a == 5)\n',
+             '               if(a == 2)\n               {\n                  this["b" add a].t = _root.rname[_root.chara];\n'
+             '               }\n               else if(a == 5)\n')],
     MENU3: [
+        # previous / next walk through _root.roster (one step per press), start + back as before
+        (re.compile(r'function charaf\(\)\s*\{.*?\n   \}\n(?=   function optionsf)', re.S),
+         'function charaf()\n   {\n      var on = 0;\n'
+         '      if(this.b1.d == "on")\n      {\n         on = -1;\n      }\n'
+         '      else if(this.b2.d == "on" || this.b3.d == "on")\n      {\n         on = 1;\n      }\n'
+         '      if(on != 0 && pick != "held" && _root.character.character._currentframe == 1)\n      {\n'
+         '         pick = "held";\n         var n = _root.roster.length;\n         var i = 0;\n'
+         '         while(i < n && _root.roster[i] != _root.chara)\n         {\n            i++;\n         }\n'
+         '         i = (i + n + on) % n;\n         _root.chara = _root.roster[i];\n'
+         '         this.b2.t = _root.rname[_root.chara];\n      }\n'
+         '      if(on == 0)\n      {\n         pick = "off";\n      }\n'
+         '      if(this.b7.d == "on")\n      {\n         _root.character.character.play();\n      }\n'
+         '      else if(this.b8.d == "on")\n      {\n         back(8);\n      }\n   }\n'),
         lit('invalid passwd', 'סיסמה שגויה'), lit('accepted', 'הסיסמה התקבלה'),
         ('this["b" add a].t = (this["b" add a].t add ": off").toUpperCase();',
          f'this["b" add a].t = {q("כבוי")} add ": " add this["b" add a].t;'),
@@ -332,10 +376,13 @@ def main():
     for rel, subs in SCRIPTS.items():
         code = open(os.path.join(src, rel), encoding='utf-8').read()
         for old, new in subs:
-            n = code.count(old)
+            if isinstance(old, re.Pattern):
+                code, n = old.subn(lambda m: new, code)
+            else:
+                n = code.count(old)
+                code = code.replace(old, new)
             if n == 0:
                 sys.exit(f'not found in {rel}: {old}')
-            code = code.replace(old, new)
         dst = os.path.join(OUT, 'scripts', rel)
         os.makedirs(os.path.dirname(dst), exist_ok=True)
         open(dst, 'w', encoding='utf-8').write(code)

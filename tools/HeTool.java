@@ -50,22 +50,26 @@ public class HeTool {
             return;
         }
         if (a[0].equals("hd")) {
-            // hd <in> <out> <dir with <id>.png upscaled by factor> <factor>: swap bitmaps, keep on-screen size
-            double k = Double.parseDouble(a[4]);
-            Set<Integer> done = new HashSet<>();
+            // hd <in> <out> <dirs ";"> <factors ";">: swap bitmaps for the <id>.png upscaled copies, keep on-screen size
+            String[] dirs = a[3].split(";"), ks = a[4].split(";");
+            Map<Integer, Double> done = new HashMap<>();
             for (Tag t : swf.getTags()) {
                 if (t instanceof com.jpexs.decompiler.flash.tags.base.ImageTag) {
                     com.jpexs.decompiler.flash.tags.base.ImageTag it = (com.jpexs.decompiler.flash.tags.base.ImageTag) t;
-                    Path p = Paths.get(a[3], it.getCharacterId() + ".png");
-                    if (!Files.exists(p)) continue;
-                    it.setImage(Files.readAllBytes(p));
-                    it.setModified(true);
-                    done.add(it.getCharacterId());
+                    for (int d = 0; d < dirs.length; d++) {
+                        Path p = Paths.get(dirs[d], it.getCharacterId() + ".png");
+                        if (!Files.exists(p)) continue;
+                        it.setImage(Files.readAllBytes(p));
+                        it.setModified(true);
+                        done.put(it.getCharacterId(), Double.parseDouble(ks[d]));
+                        break;
+                    }
                 }
             }
             int[] n = {0};
             forEachBitmapFill(swf, (st, fs) -> {
-                if (!done.contains(fs.bitmapId)) return;
+                if (!done.containsKey(fs.bitmapId)) return;
+                double k = done.get(fs.bitmapId);
                 com.jpexs.decompiler.flash.types.MATRIX m = fs.bitmapMatrix;
                 if (!m.hasScale) { m.hasScale = true; m.scaleX = 1; m.scaleY = 1; }
                 m.scaleX /= k; m.scaleY /= k;

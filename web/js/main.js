@@ -5,7 +5,8 @@
   const ASPECT = 350 / 250;
   const $ = (id) => document.getElementById(id);
   const game = $('game'), pad = $('pad'), start = $('start'), playBtn = $('play'), loading = $('loading');
-  const touch = matchMedia('(pointer: coarse)').matches && navigator.maxTouchPoints > 0;
+  const APP = /SonicHeApp/.test(navigator.userAgent);   // inside the Android app (already full screen, landscape)
+  const touch = APP || (matchMedia('(pointer: coarse)').matches && navigator.maxTouchPoints > 0);
   let player = null;
 
   function fit() {
@@ -14,7 +15,7 @@
     game.style.width = Math.floor(gw) + 'px';
     game.style.height = Math.floor(gw / ASPECT) + 'px';
     document.body.classList.toggle('portrait', h > w);
-    $('rotate').hidden = !(touch && h > w && !sessionStorage.rotateOk);
+    $('rotate').hidden = APP || !(touch && h > w && !sessionStorage.rotateOk);
   }
   addEventListener('resize', fit);
   fit();
@@ -25,6 +26,8 @@
     publicPath: 'ruffle/', autoplay: 'on', unmuteOverlay: 'hidden', splashScreen: false,
     letterbox: 'on', quality: 'high', contextMenu: 'off', preloader: true,
     backgroundColor: '#000000', allowFullscreen: true, openUrlMode: 'deny',
+    // Ruffle's own WebGL renderer: the wgpu one panics on GPUs with 256 vertex uniform vectors (many phones)
+    preferredRenderer: 'webgl',
   };
   const ruffle = window.RufflePlayer.newest();
   playBtn.disabled = false;
@@ -90,7 +93,14 @@
     b.addEventListener('contextmenu', (e) => e.preventDefault());
   }
 
-  if ('serviceWorker' in navigator && !/^(localhost|127\.|192\.168\.)/.test(location.hostname)) {
+  if (APP) {
+    $('btn-full').hidden = true;
+    // Android back: pause in the game, leave the app from the start screen
+    window.__appBack = () => {
+      if (!start.hidden || !player) { window.App && App.exit(); return; }
+      send('keydown', 'enter'); setTimeout(() => send('keyup', 'enter'), 120);
+    };
+  } else if ('serviceWorker' in navigator && !/^(localhost|127\.|192\.168\.)/.test(location.hostname)) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   }
 })();

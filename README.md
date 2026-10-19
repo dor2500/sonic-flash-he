@@ -4,10 +4,24 @@
 
 **▶ לשחק בדפדפן:** https://dor2500.github.io/sonic-flash-he/
 
-**⬇ הורדה ל-Windows:** [Releases](https://github.com/dor2500/sonic-flash-he/releases/latest) → `sonic_flash_he.exe` (לא צריך התקנה)
+**⬇ הורדה:** [Releases](https://github.com/dor2500/sonic-flash-he/releases/latest)
+- **אנדרואיד:** `sonic_flash_he.apk` — מורידים בטלפון, פותחים ומאשרים "התקנה ממקורות לא ידועים". עובד גם בלי אינטרנט.
+- **Windows:** `sonic_flash_he.exe` — קובץ יחיד, בלי התקנה.
 
 ![תפריט](docs/menu.png)
 ![משחק](docs/gameplay.png)
+
+## 24 דמויות
+6 הדמויות המקוריות (סוניק, טיילס, נאקלס, קרים, איימי, שאדו — כולן פתוחות מההתחלה) ועוד 18 חדשות.
+בתפריט "בחירת דמות": **דמות קודמת / דמות הבאה**.
+
+![הדמויות החדשות](docs/characters.png)
+
+הדמויות החדשות מצוירות בקוד (`tools/make_chars.py`): שלד עם מפרקים שמקבל תנוחה לכל אחד מ-~120 הפריימים של
+הדמות המקורית (עמידה, הליכה, ריצה, ספרינט, כדור, ספין-דאש, הסתכלות למעלה, כריעה, קפיץ, מסילה, פגיעה,
+שיווי משקל, בורג, מוט, מוות), מצויר ב-×4 ומוקטן לפיקסל-ארט עם קו מתאר. כל פריים מוצב בדיוק איפה שעמדה הדמות
+המקורית, אז הפיזיקה לא משתנה. כל דמות חדשה מקבלת את היכולות של "דמות בסיס" (למשל קירבי ופיקאצ'ו עפים כמו טיילס).
+סופר סוניק, סקורג' וסילבר הם צביעה מחדש של הספרייטים המקוריים.
 
 ## מקשים
 | פעולה | מקלדת | טלפון |
@@ -32,13 +46,18 @@
 ```powershell
 .\build.ps1              # -> output\סוניק פלאש.exe + output\Ultimate Flash Sonic HE.swf
 .\tools\build_web.ps1    # -> output\web + output\sonic_flash_he_web.zip
+.\tools\build_apk.ps1    # -> output\sonic_flash_he.apk (Android SDK: build-tools + platform, בלי Gradle)
 ```
+`build.ps1 -NoChars` בונה בלי הדמויות החדשות.
 
 | קובץ | תפקיד |
 |---|---|
 | `tools/translate.py` | כל התרגומים, פריסת טקסט סטטי, תיקוני סקריפטים (ActionScript) |
 | `tools/HeTool.java` | גליפים עבריים בגופנים, טקסטים, SWF v6/UTF-8, החלפת bitmaps ל-HD |
 | `tools/hd_images.py` | הגדלת כל התמונות ב-xBRZ |
+| `tools/make_chars.py` | ציור הדמויות החדשות בכל התנוחות + spec לשתילה |
+| `tools/CharTool.java` | שכפול עץ הדמות ב-SWF עם התמונות החדשות, פריימים לאייקונים |
+| `android/` + `tools/build_apk.ps1` | אפליקציית אנדרואיד (WebView על גרסת הדפדפן, offline) |
 | `tools/make_logo.py` | הלוגו העברי |
 | `tools/set_icon.py` | אייקון ל-projector |
 | `tools/build_web.ps1` | גרסת הדפדפן |
@@ -47,4 +66,4 @@
 כלים: [JPEXS FFDec](https://github.com/jindrapetrik/jpexs-decompiler), ‏[xBRZ](https://sourceforge.net/projects/xbrz/), ‏[Ruffle](https://ruffle.rs). גופנים: Rubik, Secular One, Suez One, Fredoka (SIL OFL).
 
 ## זכויות
-Sonic the Hedgehog והדמויות שייכים ל-SEGA. ‏Ultimate Flash Sonic הוא משחק מעריצים חינמי של יוצריו המקוריים. המאגר מכיל רק את כלי התרגום; קבצי המשחק עצמם מופצים רק כקבצי Release, ללא מטרות רווח.
+Sonic the Hedgehog והדמויות שייכים ל-SEGA; מריו ושאר הדמויות שייכים לבעליהם (Nintendo, Capcom, Mojang, Innersloth, Nickelodeon, Coffee Stain) — ציורי מעריצים בלבד. ‏Ultimate Flash Sonic הוא משחק מעריצים חינמי של יוצריו המקוריים. המאגר מכיל רק את כלי התרגום; קבצי המשחק עצמם מופצים רק כקבצי Release, ללא מטרות רווח.
