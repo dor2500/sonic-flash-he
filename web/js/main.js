@@ -23,7 +23,7 @@
   window.RufflePlayer = window.RufflePlayer || {};
   window.RufflePlayer.config = {
     publicPath: 'ruffle/', autoplay: 'on', unmuteOverlay: 'hidden', splashScreen: false,
-    letterbox: 'on', quality: 'high', contextMenu: 'off', preloader: false,
+    letterbox: 'on', quality: 'high', contextMenu: 'off', preloader: true,
     backgroundColor: '#000000', allowFullscreen: true, openUrlMode: 'deny',
   };
   const ruffle = window.RufflePlayer.newest();
